@@ -41,8 +41,97 @@ export class PrintingSectionComponent {
     this.selectedFile = event.target.files[0];
 
   }
+  async sendEmail() {
 
- async sendEmail() {
+  // REMOVE SPACES
+  this.formData.from_name =
+    this.formData.from_name.trim();
+
+  this.formData.from_email =
+    this.formData.from_email.trim();
+
+  // VALIDATION
+
+  if (
+    !this.formData.from_name ||
+    !this.formData.from_email
+  ) {
+
+    alert('Please fill all fields.');
+    return;
+
+  }
+
+  // VALID NAME
+  if (this.formData.from_name.length < 3) {
+
+    alert('Name is too short.');
+    return;
+
+  }
+
+  // VALID EMAIL
+  const emailRegex =
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  if (
+    !emailRegex.test(
+      this.formData.from_email
+    )
+  ) {
+
+    alert('Invalid email address.');
+    return;
+
+  }
+
+  // VALID FILE
+  if (!this.selectedFile) {
+
+    alert('Please upload a file.');
+    return;
+
+  }
+
+  // FILE SIZE LIMIT (10MB)
+  if (
+    this.selectedFile.size >
+    10 * 1024 * 1024
+  ) {
+
+    alert('File too large. Max 10MB.');
+    return;
+
+  }
+
+  // ALLOWED FILE TYPES
+  const allowedTypes = [
+
+    'application/pdf',
+
+    'image/png',
+
+    'image/jpeg',
+
+    'application/msword',
+
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+
+  ];
+
+  if (
+    !allowedTypes.includes(
+      this.selectedFile.type
+    )
+  ) {
+
+    alert(
+      'Only PDF, DOCX, JPG, PNG files are allowed.'
+    );
+
+    return;
+
+  }
 
   try {
 
@@ -51,31 +140,39 @@ export class PrintingSectionComponent {
     // CLOUDINARY DATA
     const data = new FormData();
 
-    data.append('file', this.selectedFile);
+    data.append(
+      'file',
+      this.selectedFile
+    );
 
     data.append(
       'upload_preset',
       'smart_hub_uploads'
     );
 
-    // UPLOAD TO CLOUDINARY
-    const response: any = await this.http.post(
+    // UPLOAD
+    const response: any =
+      await this.http.post(
 
-      'https://api.cloudinary.com/v1_1/dvctx5k8z/auto/upload',
+        'https://api.cloudinary.com/v1_1/dvctx5k8z/auto/upload',
 
-      data
+        data
 
-    ).toPromise();
+      ).toPromise();
 
-    // SAVE FILE URL
-    this.formData.file_url = response.secure_url;
+    // FILE URL
+    this.formData.file_url =
+      response.secure_url;
 
     // SEND EMAIL
     await emailjs.send(
 
       'service_wmpmuhg',
+
       'template_2nq1z6i',
+
       this.formData,
+
       'AWlf6ADPjxxyB1ag0'
 
     );
@@ -85,21 +182,28 @@ export class PrintingSectionComponent {
 
     // RESET FORM
     this.formData = {
+
       from_name: '',
+
       from_email: '',
+
       print_type: 'Black & White',
+
       paper_format: 'A4',
+
       pages: 1,
+
       file_url: ''
+
     };
 
-    // CLEAR FILE
-    this.selectedFile = undefined as any;
+    // RESET FILE
+    this.selectedFile =
+      undefined as any;
 
-    // RESET FILE INPUT
-    this.fileInput.nativeElement.value = '';
+    this.fileInput.nativeElement.value =
+      '';
 
-    // HIDE SUCCESS AFTER 4s
     setTimeout(() => {
 
       this.showSuccess = false;
@@ -122,8 +226,9 @@ export class PrintingSectionComponent {
 
   }
 
+}
 
-  }
+ 
 
 }
 

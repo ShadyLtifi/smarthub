@@ -18,6 +18,10 @@ export class ContactSectionComponent {
 
   showSuccess = false;
 
+  showError = false;
+
+  errorMessage = '';
+
   formData = {
 
     from_name: '',
@@ -28,7 +32,80 @@ export class ContactSectionComponent {
 
   };
 
+  // EMAIL VALIDATION
+  isValidEmail(email: string): boolean {
+
+    const regex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    return regex.test(email);
+
+  }
+
   async sendMessage() {
+
+    // REMOVE SPACES
+    this.formData.from_name =
+      this.formData.from_name.trim();
+
+    this.formData.from_email =
+      this.formData.from_email.trim();
+
+    this.formData.message =
+      this.formData.message.trim();
+
+    // VALIDATION
+
+    if (
+      !this.formData.from_name ||
+      !this.formData.from_email ||
+      !this.formData.message
+    ) {
+
+      this.showFormError(
+        'Please fill all fields.'
+      );
+
+      return;
+
+    }
+
+    // NAME LENGTH
+    if (this.formData.from_name.length < 3) {
+
+      this.showFormError(
+        'Name must contain at least 3 characters.'
+      );
+
+      return;
+
+    }
+
+    // VALID EMAIL
+    if (
+      !this.isValidEmail(
+        this.formData.from_email
+      )
+    ) {
+
+      this.showFormError(
+        'Please enter a valid email address.'
+      );
+
+      return;
+
+    }
+
+    // MESSAGE LENGTH
+    if (this.formData.message.length < 10) {
+
+      this.showFormError(
+        'Message is too short.'
+      );
+
+      return;
+
+    }
 
     try {
 
@@ -48,6 +125,9 @@ export class ContactSectionComponent {
 
       this.showSuccess = true;
 
+      this.showError = false;
+
+      // RESET FORM
       this.formData = {
 
         from_name: '',
@@ -70,7 +150,9 @@ export class ContactSectionComponent {
 
       console.error(error);
 
-      alert('Message failed.');
+      this.showFormError(
+        'Message failed. Please try again.'
+      );
 
     }
 
@@ -79,6 +161,20 @@ export class ContactSectionComponent {
       this.isLoading = false;
 
     }
+
+  }
+
+  showFormError(message: string) {
+
+    this.errorMessage = message;
+
+    this.showError = true;
+
+    setTimeout(() => {
+
+      this.showError = false;
+
+    }, 4000);
 
   }
 
